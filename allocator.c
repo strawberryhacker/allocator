@@ -17,8 +17,7 @@ struct Block {
 };
 
 typedef struct {
-    Block   dummy_block;
-    Block*  dummy;
+    Block   dummy;
     Block*  last;
     int     capacity;
     int     used;
@@ -49,9 +48,8 @@ void allocator_init() {
     end->size = 0;
     end->next = 0;
 
-    list_allocator.dummy = &list_allocator.dummy_block;
-    list_allocator.dummy->size = 0;
-    list_allocator.dummy->next = start;
+    list_allocator.dummy.size = 0;
+    list_allocator.dummy.next = start;
     list_allocator.last = end;
 }
 
@@ -71,7 +69,7 @@ int allocator_get_used() {
 
 static void insert_block(Block* block) {
     Block* it;
-    for (it = list_allocator.dummy; it && (ptr)it->next <= (ptr)block; it = it->next);
+    for (it = &list_allocator.dummy; it && (ptr)it->next <= (ptr)block; it = it->next);
 
     // Check for backward coalescing.
     if ((ptr)it + it->size == (ptr)block) {
@@ -99,8 +97,8 @@ static void insert_block(Block* block) {
 void* allocate(int size) {
     size = align_up(size + sizeof(Block), ALIGNMENT);
 
-    Block* previous = list_allocator.dummy;
-    Block* current = list_allocator.dummy->next;
+    Block* previous = &list_allocator.dummy;
+    Block* current = list_allocator.dummy.next;
 
     while (current && current->size < size) {
         previous = current;
