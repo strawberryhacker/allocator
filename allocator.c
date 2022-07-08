@@ -78,7 +78,7 @@ static void insert_block(Block* block) {
     }
 
     // Check for forward coalescing.
-    if ((ptr)block + block->size == (ptr)block && it->next != list_allocator.last) {
+    if ((ptr)block + block->size == (ptr)it->next && it->next != list_allocator.last) {
         block->size += it->next->size;
         block->next = it->next->next;
     }
@@ -86,7 +86,7 @@ static void insert_block(Block* block) {
         block->next = it->next;
     }
 
-    // Fix the pointers in case of backward coalescing.
+    // Fix the pointers in case of no backward coalescing.
     if (block != it) {
         it->next = block;
     }
